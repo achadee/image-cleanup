@@ -33,42 +33,29 @@ module ImageCleanup
       end
     end
 
+    def scan_specific_size_from_iteration comparer, duplicates, i
+      return count, duplicates if self.files[i].nil?
+      # only compare files that are the exact same size, since array is sorted
+      # we can loop over the images that follow the next biggest image
+      if self.files[i].size == comparer.size && comparer == self.files[i]
+        duplicates[comparer.path] = [] if !duplicates[comparer.path]
+        duplicates[comparer.path] << self.files[i]
+      else
+        comparer = self.files[i]
+      end
+
+      return duplicates.merge(scan_specific_size_from_iteration comparer, duplicates, i+1)
+    end
+
     def find_duplicate_images log=false
       # we are using a dynamic programming technique that skips over files with the
       # same size, so we have to use a traditional loop in ruby
-      duplicates = {}
-      count = 0
-      # worst case complexity is O(n2)
-      i = 0
-      while (i < self.files.length-1)
-        # determine the size of the current file
-        size = self.files[i].size
 
-        # switch the iterator to the next file straight away
-        j = i+1
-
-        # only compare files that are the exact same size, since array is sorted
-        # we can loop over the images that follow the next biggest image
-        while (self.files[j].size == size)
-
-          # compare images here, the complexity of the comparator O(n) but is
-          # unlikely to hit this unless the images are all one byte difference
-          # and the exact same size
-          if self.files[i] == self.files[j]
-            count = count + 1
-            duplicates[self.files[i].path] = [] if !duplicates[self.files[i].path]
-            duplicates[self.files[i].path] << self.files[j]
-          end
-
-          j = j + 1
-        end
-        # because we skip the iterator the comoplexity of these two loops is O(n)
-        i=j
-      end
+      duplicates = scan_specific_size_from_iteration self.files[0], {}, 1
 
       # simple log function for people that only care about diplaying stuff
       if log
-        puts "Found #{count} duplicates"
+        puts "Found duplicates"
         puts "-------------------------"
         duplicates.each do |comparer, dups|
           puts comparer.bold
@@ -83,4 +70,4 @@ module ImageCleanup
   end
 end
 
-# ImageCleanup::Folder.new("/Users/achadee/Desktop/").find_duplicate_images
+# ImageCleanup::Folder.new("/Users/achadee/Projects/interviews/cogent/temp").find_duplicate_images
