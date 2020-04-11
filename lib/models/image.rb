@@ -6,8 +6,12 @@ module ImageCleanup
     attr_accessor :name
     attr_accessor :extension
     attr_accessor :size
+    attr_accessor :scanned
 
     def initialize base_path, path
+
+      #set the scanned value
+      self.scanned = false
 
       # set the bass path
       self.base_path = base_path

@@ -15,8 +15,8 @@ module ImageCleanup
         begin
           # create a new image file
           file = Image.new(self.base_path, "#{f}")
-          insert_at = self.files.bsearch_index { |f| f.size >= file.size }
 
+          insert_at = self.files.bsearch_index { |f| f.size >= file.size }
           if insert_at
 
             # insert into ordered array so we can process faster in the next step
@@ -34,40 +34,46 @@ module ImageCleanup
     end
 
     def scan_specific_size_from_iteration comparer, duplicates, i
-      return count, duplicates if self.files[i].nil?
+      return duplicates if self.files[i].nil? || comparer.scanned
       # only compare files that are the exact same size, since array is sorted
       # we can loop over the images that follow the next biggest image
-      if self.files[i].size == comparer.size && comparer == self.files[i]
-        duplicates[comparer.path] = [] if !duplicates[comparer.path]
-        duplicates[comparer.path] << self.files[i]
-      else
-        comparer = self.files[i]
+      puts i
+      if self.files[i].size == comparer.size
+        if comparer == self.files[i]
+          duplicates[comparer.path] = [] if !duplicates[comparer.path]
+          duplicates[comparer.path] << self.files[i]
+          self.files[i].scanned = true
+        else
+          # set a new comparer and look at i+1
+          duplicates.merge(scan_specific_size_from_iteration self.files[i], duplicates, i+1)
+        end
+        # skip over the current i and look at the next one with the current comparer
+        duplicates.merge(scan_specific_size_from_iteration comparer, duplicates, i+1)
       end
 
-      return duplicates.merge(scan_specific_size_from_iteration comparer, duplicates, i+1)
+      return duplicates.merge(scan_specific_size_from_iteration self.files[i], duplicates, i+1)
     end
 
     def find_duplicate_images log=false
       # we are using a dynamic programming technique that skips over files with the
-      # same size, so we have to use a traditional loop in ruby
-
+      # same size
       duplicates = scan_specific_size_from_iteration self.files[0], {}, 1
 
       # simple log function for people that only care about diplaying stuff
-      if log
-        puts "Found duplicates"
-        puts "-------------------------"
-        duplicates.each do |comparer, dups|
-          puts comparer.bold
-          dups.each {|d| puts "      ===> #{d.path}"}
-        end
-        return true
-      end
+      log ? log_duplicates(duplicates) : duplicates
+    end
 
-      return duplicates, count
+    def log_duplicates duplicates
+      puts "Found duplicates"
+      puts "-------------------------"
+      duplicates.each do |comparer, dups|
+        puts comparer.bold
+        dups.each {|d| puts "      ===> #{d.path}"}
+      end
+      return
     end
 
   end
 end
 
-# ImageCleanup::Folder.new("/Users/achadee/Projects/interviews/cogent/temp").find_duplicate_images
+# folder = ImageCleanup::Folder.new("/Users/achadee/Projects/interviews/cogent/temp").find_duplicate_images
