@@ -13,6 +13,13 @@ gem 'image-cleanup'
 
 ## Usage
 
+### Quick start
+
+Run the gem on a particular folder (just returns duplicates)
+```bash
+./remove_duplicates.sh [FOLDER_NAME]
+```
+
 ### API
 
 <!-- todo -->
@@ -24,13 +31,6 @@ bin/console
 ```
 
 you can access all the api commands through the CLI
-
-### Quick start
-
-Or run the gem on a particular folder (just returns duplicates)
-```bash
-./remove_duplicates.sh [FOLDER_NAME]
-```
 
 ## Tests
 
