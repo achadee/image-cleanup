@@ -3,8 +3,6 @@ require 'fileutils'
 require_relative '../lib/image_cleanup'
 
 # load the testing modules
-require_relative 'models/image_test'
-require_relative 'models/folder_test'
 
 module ImageCleanupTest
   class Helper
@@ -20,7 +18,13 @@ module ImageCleanupTest
 
       case type
       when "png"
-        File.open("temp/#{name}.png", "w") {|f| f.write(">PNG"+(0..12).map{|e| char }.join)}
+        File.binwrite("temp/#{name}.png", "\x89PNG"+(0..size).map{|e| char }.join)
+      when "gif"
+        File.binwrite("temp/#{name}.gif", "GIF8"+(0..size).map{|e| char }.join)
+      when "jpg"
+        File.binwrite("temp/#{name}.jpg", "\xff\xd8\xff\xe0\x00\x10JFIF"+(0..size).map{|e| char }.join)
+      else
+        File.open("temp/#{name}.txt", "w") {|f| f.write("..."+(0..size).map{|e| char }.join)}
       end
     end
 

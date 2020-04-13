@@ -8,6 +8,8 @@ module ImageCleanup
     attr_accessor :size
     attr_accessor :scanned
 
+    # ImageCleanup::Image.new("/Users/achadee/Downloads/","IMG_0304\ copy\ 2.JPG")
+
     def initialize base_path, path
 
       #set the scanned value
@@ -27,12 +29,17 @@ module ImageCleanup
 
       # throw an exception if the file extension is not supported
       raise FileTypeNotSupported if !is_image?
+      return true
     end
 
     def file_type
-      return '.gif' if File.binread("#{self.base_path}/#{self.path}", 3) == 'GIF'
-      return '.png' if File.binread("#{self.base_path}/#{self.path}", 3, 1) == 'PNG'
-      return '.jpg' if File.binread("#{self.base_path}/#{self.path}", 4, 6) == 'JFIF'
+      io = IO.read("#{self.base_path}/#{self.path}", 10)
+
+      return '.gif' if /^GIF8/n =~ io
+      return '.jpg' if /^\xff\xd8\xff\xe0\x00\x10JFIF/n =~ io
+      return '.jpg' if /^\xff\xd8\xff\xe1(.*){2}Exif/n =~ io
+      return '.png' if /^\x89PNG/n =~ io
+
       return 'other'
     end
 

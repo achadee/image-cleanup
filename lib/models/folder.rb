@@ -37,7 +37,6 @@ module ImageCleanup
       return duplicates if self.files[i].nil? || comparer.scanned
       # only compare files that are the exact same size, since array is sorted
       # we can loop over the images that follow the next biggest image
-      puts i
       if self.files[i].size == comparer.size
         if comparer == self.files[i]
           duplicates[comparer.path] = [] if !duplicates[comparer.path]
@@ -64,11 +63,13 @@ module ImageCleanup
     end
 
     def log_duplicates duplicates
-      puts "Found duplicates"
-      puts "-------------------------"
-      duplicates.each do |comparer, dups|
-        puts comparer.bold
-        dups.each {|d| puts "      ===> #{d.path}"}
+      if duplicates.count > 0
+        puts "Found duplicates"
+        puts "-------------------------"
+        duplicates.each do |comparer, dups|
+          puts comparer.bold
+          dups.each {|d| puts "      ===> #{d.path}"}
+        end
       end
       return
     end
