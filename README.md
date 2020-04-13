@@ -13,28 +13,26 @@ gem 'image-cleanup'
 
 ## Usage
 
-### Quick start
-
-Run the gem on a particular folder (just returns duplicates)
-```bash
-./remove_duplicates.sh [FOLDER_NAME]
-```
-
-### API
-
-<!-- todo -->
-
 ### CLI
 
+1. open cli
 ```bash
-bin/console
+bin/cli
 ```
-
-you can access all the api commands through the CLI
+2. load a folder
+```ruby
+folder = ImageCleanup::Folder.new("/Users/achadee/desktop/")
+```
+3. find the duplicates
+```ruby
+log = true # set this if you want to just display to STOUT, otherwise a folder object will be returned
+folder.find_duplicate_images log
+```
 
 ## Tests
 
 Run the tests using the command
 ```bash
-ruby test/image_cleanup_test.rb
+ruby test/models/folder_test.rb
+ruby test/models/image_test.rb
 ```

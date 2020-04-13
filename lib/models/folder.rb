@@ -64,6 +64,7 @@ module ImageCleanup
 
     def log_duplicates duplicates
       if duplicates.count > 0
+        puts "-------------------------"
         puts "Found duplicates"
         puts "-------------------------"
         duplicates.each do |comparer, dups|
